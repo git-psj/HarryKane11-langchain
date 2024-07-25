@@ -65,7 +65,11 @@ def main():
             chain = st.session_state.conversation
 
             with st.spinner("Thinking..."):
-                result = chain({"question": query})
+                try:
+                    result = chain({"question": query})
+                except Exception as e:
+                    st.error(f"Error occurred: {str(e)}")
+                    return
 
                 st.session_state.chat_history = result.get('chat_history', [])
 
