@@ -46,9 +46,6 @@ def main():
     if 'messages' not in st.session_state:
         st.session_state['messages'] = [{"role": "assistant", 
                                         "content": "안녕하세요! 학생복지모니터단입니다! 질문사항을 적어주세요!"}]
-        llm = ChatGoogleGenerativeAI(model="gemini-pro")
-        result = llm.invoke("네이버에 대해 보고서를 작성해줘")
-        Markdown(result.content)
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -67,11 +64,7 @@ def main():
             chain = st.session_state.conversation
 
             with st.spinner("Thinking..."):
-                try:
-                    result = chain({"question": query})
-                except Exception as e:
-                    st.error(f"Error occurred: {str(e)}")
-                    return
+                result = chain({"question": query})
 
                 st.session_state.chat_history = result.get('chat_history', [])
 
