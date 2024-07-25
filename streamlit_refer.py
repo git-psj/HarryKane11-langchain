@@ -17,7 +17,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 
 # from streamlit_chat import message
-
+import gemini
 from langchain.callbacks import get_openai_callback
 from langchain.memory import StreamlitChatMessageHistory
 
