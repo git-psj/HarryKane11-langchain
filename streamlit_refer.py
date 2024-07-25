@@ -71,7 +71,6 @@ def main():
             st.markdown(query)
 
         with st.chat_message("assistant"):
-            chain = gemini.Chain()
             chain = st.session_state.conversation
 
             with st.spinner("Thinking..."):
