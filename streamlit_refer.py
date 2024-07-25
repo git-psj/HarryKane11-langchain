@@ -17,6 +17,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 
 # from streamlit_chat import message
+import gemini
 from langchain.callbacks import get_openai_callback
 from langchain.memory import StreamlitChatMessageHistory
 
@@ -74,7 +75,7 @@ def main():
 
             with st.spinner("Thinking..."):
                 result = chain({"question": query})
-                with get_openai_callback() as cb:
+                with gemini.get_callback() as cb:
                     st.session_state.chat_history = result['chat_history']
                 response = result['answer']
                 source_documents = result['source_documents']
