@@ -31,6 +31,7 @@ def main():
     with st.sidebar:
         uploaded_files = st.file_uploader("Upload your file", type=['pdf', 'docx', 'pptx'], accept_multiple_files=True)
         #google_api_key = st.text_input("Google API Key", key="chatbot_api_key", type="password")
+        st.title('st.secrets')
         google_api_key = st.write(st.secrets['google_api_key'])
         process = st.button("Process")
     if process:
