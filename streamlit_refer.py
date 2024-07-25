@@ -131,7 +131,7 @@ def get_vectorstore(text_chunks):
 
 def get_conversation_chain(vectorstore, google_api_key):
     try:
-        #genai.configure(google_api_key=google_api_key)
+        genai.configure(google_api_key=google_api_key)
         model = genai.GenerativeModel('gemini-1.5-flash')
         llm = ChatGoogleGenerativeAI(google_api_key=google_api_key, model=model)
         conversation_chain = ConversationalRetrievalChain.from_llm(
