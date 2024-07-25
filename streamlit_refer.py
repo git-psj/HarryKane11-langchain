@@ -17,7 +17,6 @@ from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 
 # from streamlit_chat import message
-from langchain.callbacks import Callback
 from langchain.memory import StreamlitChatMessageHistory
 
 def main():
