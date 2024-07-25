@@ -3,7 +3,7 @@ import tiktoken
 from loguru import logger
 
 from langchain.chains import ConversationalRetrievalChain
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.chat_models import ChatGoogleGenerativeAI
 from langchain.document_loaders import PyPDFLoader, Docx2txtLoader, UnstructuredPowerPointLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -130,7 +130,7 @@ def get_vectorstore(text_chunks):
 
 def get_conversation_chain(vectorstore, google_api_key):
     try:
-        llm = ChatGoogleGenerativeAI(google_api_key=google_api_key, model="Gemini 1.5 Pro")
+        llm = ChatGoogleGenerativeAI(google_api_key=google_api_key, model="gemini-pro")
         conversation_chain = ConversationalRetrievalChain.from_llm(
             llm=llm, 
             chain_type="stuff", 
