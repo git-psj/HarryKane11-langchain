@@ -74,8 +74,8 @@ def main():
 
             with st.spinner("Thinking..."):
                 result = chain({"question": query})
-                with gemini.get_callback() as cb:
-                    st.session_state.chat_history = result['chat_history']
+               # with gemini.get_callback() as cb:
+               #     st.session_state.chat_history = result['chat_history']
                 response = result['answer']
                 source_documents = result['source_documents']
 
