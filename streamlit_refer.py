@@ -3,26 +3,18 @@ import tiktoken
 from loguru import logger
 
 from langchain.chains import ConversationalRetrievalChain
-from langchain.chat_models import ChatOpenAI
-from langchain_google_genai import ChatGoogleGenerativeAI
-
-from langchain.document_loaders import PyPDFLoader
-from langchain.document_loaders import Docx2txtLoader
-from langchain.document_loaders import UnstructuredPowerPointLoader
-
+from langchain.chat_models import ChatGoogleGenerativeAI
+from langchain.document_loaders import PyPDFLoader, Docx2txtLoader, UnstructuredPowerPointLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import HuggingFaceEmbeddings
-
 from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
-
-# from streamlit_chat import message
 from langchain.memory import StreamlitChatMessageHistory
 
 def main():
     st.set_page_config(
-    page_title="DaejinBus",
-    page_icon=":books:")
+        page_title="DaejinBus",
+        page_icon=":books:")
 
     st.title("_대진대학교 통학버스 :red[QA Chat]_ :books:")
 
@@ -36,7 +28,7 @@ def main():
         st.session_state.processComplete = None
 
     with st.sidebar:
-        uploaded_files =  st.file_uploader("Upload your file",type=['pdf','docx'],accept_multiple_files=True)
+        uploaded_files = st.file_uploader("Upload your file", type=['pdf', 'docx', 'pptx'], accept_multiple_files=True)
         google_api_key = st.text_input("Google API Key", key="chatbot_api_key", type="password")
         process = st.button("Process")
     if process:
@@ -45,9 +37,9 @@ def main():
             st.stop()
         files_text = get_text(uploaded_files)
         text_chunks = get_text_chunks(files_text)
-        vetorestore = get_vectorstore(text_chunks)
+        vectorstore = get_vectorstore(text_chunks)
      
-        st.session_state.conversation = get_conversation_chain(vetorestore,google_api_key) 
+        st.session_state.conversation = get_conversation_chain(vectorstore, google_api_key) 
 
         st.session_state.processComplete = True
 
@@ -72,24 +64,24 @@ def main():
             chain = st.session_state.conversation
 
             with st.spinner("Thinking..."):
-                result = chain({"question": query})
+                try:
+                    result = chain({"question": query})
+                except Exception as e:
+                    st.error(f"Error occurred: {str(e)}")
+                    return
+
                 st.session_state.chat_history = result.get('chat_history', [])
-               # with get_google_callback() as cb:
-               #     st.session_state.chat_history = result['chat_history']
-               # with gemini.get_callback() as cb:
-               #     st.session_state.chat_history = result['chat_history']
-                response = result['answer']
-                source_documents = result['source_documents']
+
+                response = result.get('answer', 'No answer provided')
+                source_documents = result.get('source_documents', [])
 
                 st.markdown(response)
-                with st.expander("참고 문서 확인"):
-                    st.markdown(source_documents[0].metadata['source'], help = source_documents[0].page_content)
-                    st.markdown(source_documents[1].metadata['source'], help = source_documents[1].page_content)
-                    st.markdown(source_documents[2].metadata['source'], help = source_documents[2].page_content)
-                    
+                if source_documents:
+                    with st.expander("참고 문서 확인"):
+                        for doc in source_documents:
+                            st.markdown(doc.metadata.get('source', 'No source metadata'), help=doc.page_content)
 
-
-# Add assistant message to chat history
+        # Add assistant message to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
 
 def tiktoken_len(text):
@@ -98,12 +90,11 @@ def tiktoken_len(text):
     return len(tokens)
 
 def get_text(docs):
-
     doc_list = []
     
     for doc in docs:
-        file_name = doc.name  # doc 객체의 이름을 파일 이름으로 사용
-        with open(file_name, "wb") as file:  # 파일을 doc.name으로 저장
+        file_name = doc.name
+        with open(file_name, "wb") as file:
             file.write(doc.getvalue())
             logger.info(f"Uploaded {file_name}")
         if '.pdf' in doc.name:
@@ -119,7 +110,6 @@ def get_text(docs):
         doc_list.extend(documents)
     return doc_list
 
-
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=900,
@@ -129,32 +119,31 @@ def get_text_chunks(text):
     chunks = text_splitter.split_documents(text)
     return chunks
 
-
 def get_vectorstore(text_chunks):
     embeddings = HuggingFaceEmbeddings(
-                                        model_name="jhgan/ko-sroberta-multitask",
-                                        model_kwargs={'device': 'cpu'},
-                                        encode_kwargs={'normalize_embeddings': True}
-                                        )  
+        model_name="jhgan/ko-sroberta-multitask",
+        model_kwargs={'device': 'cpu'},
+        encode_kwargs={'normalize_embeddings': True}
+    )
     vectordb = FAISS.from_documents(text_chunks, embeddings)
     return vectordb
 
-def get_conversation_chain(vetorestore,google_api_key):
-    llm = ChatGoogleGenerativeAI(google_api_key=google_api_key, model="gemini-pro")
-    #llm = ChatOpenAI(openai_api_key=openai_api_key, model_name = 'gpt-3.5-turbo',temperature=0)
-    conversation_chain = ConversationalRetrievalChain.from_llm(
+def get_conversation_chain(vectorstore, google_api_key):
+    try:
+        llm = ChatGoogleGenerativeAI(google_api_key=google_api_key, model="gemini-pro")
+        conversation_chain = ConversationalRetrievalChain.from_llm(
             llm=llm, 
             chain_type="stuff", 
-            retriever=vetorestore.as_retriever(search_type = 'mmr', vervose = True), 
+            retriever=vectorstore.as_retriever(search_type='mmr', verbose=True), 
             memory=ConversationBufferMemory(memory_key='chat_history', return_messages=True, output_key='answer'),
             get_chat_history=lambda h: h,
             return_source_documents=True,
-            verbose = True
+            verbose=True
         )
-
-    return conversation_chain
-
-
+        return conversation_chain
+    except Exception as e:
+        st.error(f"Failed to create conversation chain: {str(e)}")
+        return None
 
 if __name__ == '__main__':
     main()
