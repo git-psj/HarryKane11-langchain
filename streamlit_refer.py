@@ -4,6 +4,8 @@ from loguru import logger
 
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 
 from langchain.document_loaders import PyPDFLoader
 from langchain.document_loaders import Docx2txtLoader
@@ -53,7 +55,7 @@ def main():
 
     if 'messages' not in st.session_state:
         st.session_state['messages'] = [{"role": "assistant", 
-                                        "content": "안녕하세요! 학생복지모니터단입니다!\n 질문사항을 적어주세요!"}]
+                                        "content": "안녕하세요! 학생복지모니터단입니다! 질문사항을 적어주세요!"}]
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -137,7 +139,8 @@ def get_vectorstore(text_chunks):
     return vectordb
 
 def get_conversation_chain(vetorestore,openai_api_key):
-    llm = ChatOpenAI(openai_api_key=openai_api_key, model_name = 'gpt-3.5-turbo',temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-pro")
+    #llm = ChatOpenAI(openai_api_key=openai_api_key, model_name = 'gpt-3.5-turbo',temperature=0)
     conversation_chain = ConversationalRetrievalChain.from_llm(
             llm=llm, 
             chain_type="stuff", 
