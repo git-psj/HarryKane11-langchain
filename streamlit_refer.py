@@ -40,8 +40,8 @@ def main():
         google_api_key = st.text_input("Google API Key", key="chatbot_api_key", type="password")
         process = st.button("Process")
     if process:
-        if not openai_api_key:
-            st.info("Please add your OpenAI API key to continue.")
+        if not google_api_key:
+            st.info("Please add your Google API key to continue.")
             st.stop()
         files_text = get_text(uploaded_files)
         text_chunks = get_text_chunks(files_text)
