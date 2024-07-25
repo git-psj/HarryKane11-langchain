@@ -10,4 +10,5 @@ pypdf
 loguru
 docx2txt
 langchain_community
-Python-dotenv
+
+langchain-google-genai
