@@ -24,7 +24,7 @@ def main():
     page_title="DaejinBus",
     page_icon=":books:")
 
-    st.title("_Private Data :red[QA Chat]_ :books:")
+    st.title("_대진대학교 통학버스 :red[QA Chat]_ :books:")
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
