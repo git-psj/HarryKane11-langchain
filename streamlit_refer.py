@@ -1,6 +1,7 @@
 import streamlit as st
 import tiktoken
 from loguru import logger
+import google.generativeai as genai
 
 from langchain.chains import ConversationalRetrievalChain
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -126,7 +127,9 @@ def get_vectorstore(text_chunks):
 
 def get_conversation_chain(vectorstore, google_api_key):
     try:
-        llm = ChatGoogleGenerativeAI(google_api_key=google_api_key, model="gemini-pro")
+        #genai.configure(google_api_key=google_api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        llm = ChatGoogleGenerativeAI(google_api_key=google_api_key, model=model)
         conversation_chain = ConversationalRetrievalChain.from_llm(
             llm=llm, 
             chain_type="stuff", 
