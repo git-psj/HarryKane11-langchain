@@ -5,7 +5,6 @@ from loguru import logger
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from IPython.display import Markdown
 
 from langchain.document_loaders import PyPDFLoader
 from langchain.document_loaders import Docx2txtLoader
@@ -139,7 +138,7 @@ def get_vectorstore(text_chunks):
     return vectordb
 
 def get_conversation_chain(vetorestore,openai_api_key):
-    llm = ChatGoogleGenerativeAI(openai_api_key=openai_api_key, model="gemini-pro")
+    llm = ChatGoogleGenerativeAI(model="gemini-pro")
     #llm = ChatOpenAI(openai_api_key=openai_api_key, model_name = 'gpt-3.5-turbo',temperature=0)
     conversation_chain = ConversationalRetrievalChain.from_llm(
             llm=llm, 
