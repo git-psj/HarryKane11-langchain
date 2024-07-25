@@ -3,7 +3,7 @@ import tiktoken
 from loguru import logger
 
 from langchain.chains import ConversationalRetrievalChain
-from langchain.chat_models import ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.document_loaders import PyPDFLoader, Docx2txtLoader, UnstructuredPowerPointLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -46,6 +46,9 @@ def main():
     if 'messages' not in st.session_state:
         st.session_state['messages'] = [{"role": "assistant", 
                                         "content": "안녕하세요! 학생복지모니터단입니다! 질문사항을 적어주세요!"}]
+        llm = ChatGoogleGenerativeAI(model="gemini-pro")
+        result = llm.invoke("네이버에 대해 보고서를 작성해줘")
+        Markdown(result.content)
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
