@@ -17,7 +17,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 
 # from streamlit_chat import message
-from langchain.callbacks import get_google_callback
+from langchain.callbacks import Callback
 from langchain.memory import StreamlitChatMessageHistory
 
 def main():
@@ -38,7 +38,7 @@ def main():
 
     with st.sidebar:
         uploaded_files =  st.file_uploader("Upload your file",type=['pdf','docx'],accept_multiple_files=True)
-        openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
+        google_api_key = st.text_input("Google API Key", key="chatbot_api_key", type="password")
         process = st.button("Process")
     if process:
         if not openai_api_key:
@@ -74,8 +74,9 @@ def main():
 
             with st.spinner("Thinking..."):
                 result = chain({"question": query})
-                with get_google_callback() as cb:
-                    st.session_state.chat_history = result['chat_history']
+                st.session_state.chat_history = result.get('chat_history', [])
+               # with get_google_callback() as cb:
+               #     st.session_state.chat_history = result['chat_history']
                # with gemini.get_callback() as cb:
                #     st.session_state.chat_history = result['chat_history']
                 response = result['answer']
@@ -139,8 +140,8 @@ def get_vectorstore(text_chunks):
     vectordb = FAISS.from_documents(text_chunks, embeddings)
     return vectordb
 
-def get_conversation_chain(vetorestore,openai_api_key):
-    llm = ChatGoogleGenerativeAI(google_api_key=openai_api_key, model="gemini-pro")
+def get_conversation_chain(vetorestore,google_api_key):
+    llm = ChatGoogleGenerativeAI(google_api_key=google_api_key, model="gemini-pro")
     #llm = ChatOpenAI(openai_api_key=openai_api_key, model_name = 'gpt-3.5-turbo',temperature=0)
     conversation_chain = ConversationalRetrievalChain.from_llm(
             llm=llm, 
