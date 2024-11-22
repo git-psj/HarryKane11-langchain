@@ -16,8 +16,8 @@ def main():
     st.set_page_config(
         page_title="DaejinBus",
         page_icon=":books:")
-
-    st.title("_대진대학교 통학버스 :red[QA Chat]_ :books:")
+#_대진대학교 통학버스
+    st.title(" :red[QA Chat]_ :books:")
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
