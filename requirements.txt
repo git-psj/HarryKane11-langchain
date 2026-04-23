@@ -1,5 +1,6 @@
 pysqlite3-binary
-langchain
+langchain==0.1.16
+langchain-community==0.0.32
 chromadb
 unstructured
 sentence-transformers
@@ -8,6 +9,5 @@ tiktoken
 pypdf
 loguru
 docx2txt
-langchain_community
 langchain-google-genai
 google-generativeai
